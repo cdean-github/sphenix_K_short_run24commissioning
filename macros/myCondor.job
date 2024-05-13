@@ -1,0 +1,9 @@
+Universe           = vanilla
+initialDir         = /sphenix/user/cdean/private/myMacros/sphenix_K_short_run24commissioning/macros 
+Executable         = $(initialDir)/runKShortReco.sh
+PeriodicHold       = (NumJobStarts>=1 && JobStatus == 1)
+request_memory     = 6GB
+Priority           = 20
+job_lease_duration = 3600
+Arguments          = $(inputFile)
+Queue inputFile from list.runs 
