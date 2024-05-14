@@ -1,4 +1,5 @@
 Universe           = vanilla
+concurrency_limits = CONCURRENCY_LIMIT_DEFAULT:1000
 initialDir         = /sphenix/user/cdean/private/myMacros/sphenix_K_short_run24commissioning/macros 
 Executable         = $(initialDir)/runKShortReco.sh
 PeriodicHold       = (NumJobStarts>=1 && JobStatus == 1)

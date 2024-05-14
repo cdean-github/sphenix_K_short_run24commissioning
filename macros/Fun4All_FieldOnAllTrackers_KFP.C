@@ -37,6 +37,7 @@
 #include <trackreco/AzimuthalSeeder.h>
 
 #include <stdio.h>
+#include <float.h>
 
 #pragma GCC diagnostic push
 
@@ -63,7 +64,7 @@ void Fun4All_FieldOnAllTrackers_KFP(
     const std::string tpcfilename = "DST_BEAM_run2pp_new_2023p013-00041989-0000.root",
     const std::string tpcdir = "/sphenix/lustre01/sphnxpro/commissioning/slurp/tpcbeam/run_00041900_00042000/",
     const std::string outfilename = "clusters_seeds",
-    const bool convertSeeds = true)
+    const bool convertSeeds = false)
 {
 
   G4TRACKING::convert_seeds_to_svtxtracks = convertSeeds;
@@ -114,7 +115,7 @@ void Fun4All_FieldOnAllTrackers_KFP(
   //Mvtx_HitUnpacking();
   //Intt_HitUnpacking();
   Tpc_HitUnpacking();
-  //Micromegas_HitUnpacking();
+  Micromegas_HitUnpacking();
 
   //Mvtx_Clustering();
   //Intt_Clustering();
@@ -125,7 +126,7 @@ void Fun4All_FieldOnAllTrackers_KFP(
   tpcclusterizer->set_rawdata_reco();
   se->registerSubsystem(tpcclusterizer);
 
-  //Micromegas_Clustering();
+  Micromegas_Clustering();
 
   Tracking_Reco_TrackSeed();
 
@@ -182,26 +183,30 @@ void Fun4All_FieldOnAllTrackers_KFP(
   kfparticle->useFakePrimaryVertex(true);
 
   kfparticle->constrainToPrimaryVertex(true);
-  kfparticle->setMotherIPchi2(300);
+  kfparticle->setMotherIPchi2(FLT_MAX);
   kfparticle->setFlightDistancechi2(-1.);
   kfparticle->setMinDIRA(-1.1);
-  kfparticle->setDecayLengthRange(1., FLT_MAX);
+  kfparticle->setDecayLengthRange(0., FLT_MAX);
+  kfparticle->setDecayTimeRange(-1*FLT_MAX, FLT_MAX);
 
   //Track parameters
-  kfparticle->setMinimumTrackPT(0.2);
+  kfparticle->setMinMVTXhits(0);
+  kfparticle->setMinTPChits(20);
+  kfparticle->setMinimumTrackPT(-1.);
+  kfparticle->setMaximumTrackPTchi2(FLT_MAX);
   kfparticle->setMinimumTrackIPchi2(-1.);
   kfparticle->setMinimumTrackIP(-1.);
   kfparticle->setMaximumTrackchi2nDOF(20.);
 
   //Vertex parameters
-  kfparticle->setMaximumVertexchi2nDOF(5);
+  kfparticle->setMaximumVertexchi2nDOF(50);
   kfparticle->setMaximumDaughterDCA(1.);
 
   //Parent parameters
   kfparticle->setMotherPT(0);
   kfparticle->setMinimumMass(0.350);
   kfparticle->setMaximumMass(0.600);
-  kfparticle->setMaximumMotherVertexVolume(0.3);
+  kfparticle->setMaximumMotherVertexVolume(0.1);
 
   kfparticle->setOutputName(outputRecoFile);
 
@@ -209,7 +214,6 @@ void Fun4All_FieldOnAllTrackers_KFP(
 
   se->run(nEvents);
   se->End();
-  se->PrintTimer();
 
   ifstream file(outputRecoFile.c_str());
   if (file.good())
